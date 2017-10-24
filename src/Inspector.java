@@ -1,22 +1,45 @@
 import java.lang.reflect.Method;
-
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.Vector;
 
 public class Inspector {
+	
+	static boolean recursive = false;
+	static Vector inspectedClasses = new Vector();
+	
+	
 	public static void inspect(Object myObject, boolean recurse) throws IllegalArgumentException, IllegalAccessException {
+		recursive = recurse;
 		Class classObject = myObject.getClass();
 		
 		String declaringClass = myObject.getClass().getSimpleName();
-		System.out.println("The name of the declaring class is: " + declaringClass);
+		System.out.println("-------------------------------------------------------------------------------------");
+		System.out.println("The name of the declaring class is: " + declaringClass + "\n");
 		
 		String superClass = myObject.getClass().getSuperclass().getSimpleName();
-		System.out.println("The name of the immediate superclass is: " + superClass);
+		System.out.println("The name of the immediate superclass is: " + superClass + "\n");
 		
 		//name of interfaces implemented
 		inspectInterfaces(classObject);
 		inspectMethods(classObject);
+		inspectConstructors(classObject);
+		inspectFields(classObject, myObject);
 		
+		inspectedClasses.add(classObject);
 		
+		if (inspectedClasses.contains(classObject.getSuperclass() != null && classObject.getSuperclass() != Object.class)){
+			System.out.println("ABOUT TO INSPECT " + classObject.getSuperclass());
+			System.out.println(inspectedClasses);
+			
+			inspect(classObject.getSuperclass(), recursive);
+		}
 	}
+	
+	
+	
+	
 	
 	public static void  inspectInterfaces(Class myObject){
 		Class[] interfaces= myObject.getInterfaces();
@@ -34,6 +57,32 @@ public class Inspector {
 		}
 	}
 	
+	public static void inspectConstructors(Class myObject) {
+		Constructor[] constructors = myObject.getConstructors();
+		int constructorCount = 0;
+		
+		for(Constructor constructor: constructors) {
+			System.out.println("\nConstructor " + constructorCount + ": ");
+			Class[] parameterTypes = constructor.getParameterTypes();
+			if (parameterTypes.length != 0) {
+				int parameterCount = 0;
+				for (Class param: parameterTypes) {
+					System.out.println("Parameter " + parameterCount + ": " + param.getSimpleName());
+					parameterCount += 1;
+				}
+			}
+			else {
+				System.out.println("Constructor " + constructorCount + " does not take any parameters");
+			}
+			constructorCount += 1;
+		
+			int mod = constructor.getModifiers();
+			String modifier = Modifier.toString(mod);
+			System.out.println("Modifiers: " + modifier);
+				
+		}
+	}
+
 	public static void inspectMethods(Class myObject) {
 		Method[] methods = myObject.getDeclaredMethods();
 		String className = myObject.getSimpleName();
@@ -41,7 +90,7 @@ public class Inspector {
 			int count = 0;
 			for (Method m: methods){
 				String methodName = m.getName();
-				System.out.println("Method " + count + ": " + methodName);
+				System.out.println("\nMethod " + count + ": " + methodName);
 				
 				//Output Exceptions
 				Class[] exceptions = m.getExceptionTypes();
@@ -55,15 +104,30 @@ public class Inspector {
 				}
 				
 				//Output Parameter types
+				Class[] parameterTypes = m.getParameterTypes();
+				if (parameterTypes.length != 0) {
+					int parameterCount = 0;
+					for (Class param: parameterTypes) {
+						System.out.println("Parameter " + parameterCount + ": " + param.getSimpleName());
+						parameterCount += 1;
+					}
+				}
+				else {
+					System.out.println(methodName + " does not have any parameters");
+				}
+				
+				//Output return type
+				Class returnClass = m.getReturnType();
+				String returnType = returnClass.getSimpleName();
+				System.out.println("Return type: " + returnType);
 				
 				
-				
-				
-				
-				
-				count++;
-				
-				
+				//Get modifiers
+				int mod = m.getModifiers();
+				String modifier = Modifier.toString(mod);
+				System.out.println("Modifiers: " + modifier);
+
+				count++;	
 			}
 		}
 		else {
@@ -72,6 +136,33 @@ public class Inspector {
 	}
 	
 	
+	
+	public static void inspectFields(Class classObject, Object obj) throws IllegalArgumentException, IllegalAccessException{
+		System.out.println("Declared fields: ");
+		Field[] fields = classObject.getDeclaredFields();
+		int fieldCount = 0;
+		for (Field field: fields) {
+			field.setAccessible(true);
+			String fieldName = field.getName();
+			System.out.println("\nField " + fieldCount + ": " + fieldName);
+			
+			if (field.getType().isArray()) {
+				System.out.println("Array Type: " + field.getType().getComponentType());
+				//print length
+				//print contents
+			}
+			else {
+				String fieldClass = field.getName();
+				System.out.println("Value: " + field.get(obj));
+				System.out.println("Type: " + field.getType());
+			}
+			System.out.println("Modifier: " + Modifier.toString(field.getModifiers()));
+
+			fieldCount += 1;
+		}
+		
+		
+	}
 	
 	
 }
