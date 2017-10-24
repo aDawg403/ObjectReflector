@@ -2,9 +2,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Array;
 import java.util.Vector;
 
 public class Inspector {
+	
 	
 	static boolean recursive = false;
 	static Vector inspectedClasses = new Vector();
@@ -28,19 +30,29 @@ public class Inspector {
 		inspectFields(classObject, myObject);
 		
 		inspectedClasses.add(classObject);
+		System.out.println("-------------------------------------------------------------------------------------");
+		
+		//inspect fields
+		
+		if(recursive) {
+			Field[] classFields = classObject.getDeclaredFields();
+			for(Field field : classFields) {
+				if (!inspectedClasses.contains(field.getType())) {
+					inspectedClasses.add(field.getType());
+					System.out.println(inspectedClasses);
+					inspect(field, recursive);
+				}
+			}
+		}
 		
 		if (inspectedClasses.contains(classObject.getSuperclass() != null && classObject.getSuperclass() != Object.class)){
-			System.out.println("ABOUT TO INSPECT " + classObject.getSuperclass());
 			System.out.println(inspectedClasses);
-			
 			inspect(classObject.getSuperclass(), recursive);
 		}
+		inspectedClasses = new Vector();
 	}
 	
-	
-	
-	
-	
+
 	public static void  inspectInterfaces(Class myObject){
 		Class[] interfaces= myObject.getInterfaces();
 		String className = myObject.getSimpleName();
@@ -141,28 +153,45 @@ public class Inspector {
 		System.out.println("Declared fields: ");
 		Field[] fields = classObject.getDeclaredFields();
 		int fieldCount = 0;
-		for (Field field: fields) {
-			field.setAccessible(true);
-			String fieldName = field.getName();
-			System.out.println("\nField " + fieldCount + ": " + fieldName);
+		if (fields.length == 0) {
+			for (Field field: fields) {
+				field.setAccessible(true);
+				String fieldName = field.getName();
+				System.out.println("\nField " + fieldCount + ": " + fieldName);
+				
+				if (field.getType().isArray()) {
+					System.out.println("Array Type: " + field.getType().getComponentType());
+					 int length = Array.getLength(field.get(obj));
+					//print contents
+				}
+				else {
+					String fieldClass = field.getName();
+					System.out.println("Value: " + field.get(obj));
+					System.out.println("Type: " + field.getType());
+				}
+				System.out.println("Modifier: " + Modifier.toString(field.getModifiers()));
+	
+				fieldCount += 1;
+			}
+		}
+		else {
+			System.out.println(classObject.getSimpleName() + " does not contain any fields");
 			
-			if (field.getType().isArray()) {
-				System.out.println("Array Type: " + field.getType().getComponentType());
-				//print length
-				//print contents
-			}
-			else {
-				String fieldClass = field.getName();
-				System.out.println("Value: " + field.get(obj));
-				System.out.println("Type: " + field.getType());
-			}
-			System.out.println("Modifier: " + Modifier.toString(field.getModifiers()));
-
-			fieldCount += 1;
 		}
 		
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }
