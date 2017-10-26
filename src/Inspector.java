@@ -13,6 +13,7 @@ public class Inspector {
 	
 	
 	public static void inspect(Object myObject, boolean recurse) throws IllegalArgumentException, IllegalAccessException {
+		//inspectedClasses = new Vector();
 		recursive = recurse;
 		Class classObject = myObject.getClass();
 		
@@ -20,7 +21,11 @@ public class Inspector {
 		System.out.println("-------------------------------------------------------------------------------------");
 		System.out.println("The name of the declaring class is: " + declaringClass + "\n");
 		
-		String superClass = myObject.getClass().getSuperclass().getSimpleName();
+		if (classObject.isArray()) {
+			System.out.println("The length of the Array object is " + Array.getLength(myObject) + "\n");
+		}
+		
+		String superClass = myObject.getClass().getSuperclass().getName();
 		System.out.println("The name of the immediate superclass is: " + superClass + "\n");
 		
 		//name of interfaces implemented
@@ -29,12 +34,11 @@ public class Inspector {
 		inspectConstructors(classObject);
 		inspectFields(classObject, myObject);
 		
-		inspectedClasses.add(classObject);
 		System.out.println("-------------------------------------------------------------------------------------");
 		
 		//inspect fields
-		
-		if(recursive) {
+		/*
+		 if(recursive) {
 			Field[] classFields = classObject.getDeclaredFields();
 			for(Field field : classFields) {
 				if (!inspectedClasses.contains(field.getType())) {
@@ -43,14 +47,59 @@ public class Inspector {
 					inspect(field, recursive);
 				}
 			}
-		}
-		
-		if (inspectedClasses.contains(classObject.getSuperclass() != null && classObject.getSuperclass() != Object.class)){
+		}*/
+		while (myObject.getClass().getSuperclass() != Object.class && !inspectedClasses.contains(myObject.getClass())){
+			inspectedClasses.add(classObject);
+			System.out.println(classObject);
 			System.out.println(inspectedClasses);
-			inspect(classObject.getSuperclass(), recursive);
+			Class superC = myObject.getClass().getSuperclass();
+			inspectClass(superC, recursive);
 		}
-		inspectedClasses = new Vector();
 	}
+	
+	
+	
+	
+	
+	
+	
+	public static void inspectClass(Class myClass, boolean recurse) throws IllegalArgumentException, IllegalAccessException {
+		//inspectedClasses = new Vector();
+		recursive = recurse;
+		Class classObject = myClass;
+	
+		String declaringClass = myClass.getSimpleName();
+		System.out.println("-------------------------------------------------------------------------------------");
+		
+		System.out.println("The name of the declaring class is: " + declaringClass + "\n");
+		Class superClass = myClass.getSuperclass();
+		System.out.println("The name of the immediate superclass is: " + superClass + "\n");
+		
+		
+		
+		//name of interfaces implemented
+		inspectInterfaces(classObject);
+		inspectMethods(classObject);
+		inspectConstructors(classObject);
+		
+		System.out.println("-------------------------------------------------------------------------------------");
+		if (myClass.getSuperclass() != Object.class){
+			inspectedClasses.add(myClass);
+			System.out.println(classObject);
+			System.out.println(inspectedClasses);
+			inspectClass(myClass.getSuperclass(), recursive);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 	public static void  inspectInterfaces(Class myObject){
@@ -61,7 +110,7 @@ public class Inspector {
 				String interfaceName = i.getSimpleName();
 				System.out.println(className + " implements: " + interfaceName);
 			
-				//print methods and fields?
+			//print methods and fields?
 			}
 		}
 		else {
@@ -150,9 +199,10 @@ public class Inspector {
 	
 	
 	public static void inspectFields(Class classObject, Object obj) throws IllegalArgumentException, IllegalAccessException{
-		System.out.println("Declared fields: ");
 		Field[] fields = classObject.getDeclaredFields();
 		int fieldCount = 0;
+		System.out.println("Declared fields: ");
+		
 		if (fields.length == 0) {
 			for (Field field: fields) {
 				field.setAccessible(true);
@@ -162,10 +212,10 @@ public class Inspector {
 				if (field.getType().isArray()) {
 					System.out.println("Array Type: " + field.getType().getComponentType());
 					 int length = Array.getLength(field.get(obj));
-					//print contents
+					 System.out.println("Array Length: " + length);
 				}
 				else {
-					String fieldClass = field.getName();
+					//String fieldClass = field.getName();
 					System.out.println("Value: " + field.get(obj));
 					System.out.println("Type: " + field.getType());
 				}
@@ -175,14 +225,13 @@ public class Inspector {
 			}
 		}
 		else {
-			System.out.println(classObject.getSimpleName() + " does not contain any fields");
+			System.out.println("\n" + classObject.getSimpleName() + " does not contain any fields");
 			
 		}
 		
 		
 	}
-	
-	
+
 	
 	
 	

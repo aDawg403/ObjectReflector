@@ -1,10 +1,10 @@
 
 public class Driver {
-	public static void main(String args[]) {
-		ClassA a = new ClassA();
+	public static void main(String args[]) throws Exception {
+		ClassB b = new ClassB();
 		
 		try {
-			Inspector.inspect(a, true);
+			Inspector.inspect(b, true);
 		}catch(IllegalArgumentException e){
 			System.out.println(e);
 		}catch(IllegalAccessException e) {
