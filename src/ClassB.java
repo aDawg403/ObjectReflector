@@ -1,5 +1,6 @@
 public class ClassB extends ClassC implements Runnable
 {
+	
     public ClassB() throws Exception
     {
 	super(2,3);
