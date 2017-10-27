@@ -1,6 +1,5 @@
 public final class ClassA implements java.io.Serializable, Runnable
 {
-	String hello = "Hello";
 	
     public ClassA() { val=3; }
 

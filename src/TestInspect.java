@@ -30,12 +30,18 @@ public class TestInspect {
 	
 	@Test
 	public void TestMethods() {
-		fail("Not yet implemented");
+		ClassA a = new ClassA();
+		Method[] aMethods = a.getClass().getDeclaredMethods();
+		
+		assertEquals(aMethods, Inspector.inspectMethods(a.getClass()));
 	}	
 	
 	@Test
 	public void TestConstructors() {
-		fail("Not yet implemented");
+		ClassA a = new ClassA();
+		Constructor[] aCons = a.getClass().getDeclaredConstructors();
+		assertEquals(aCons, Inspector.inspectConstructors(a.getClass()));
+		
 	}
 	
 }

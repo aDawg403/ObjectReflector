@@ -37,15 +37,7 @@ public class Inspector {
 		
 		System.out.println("-------------------------------------------------------------------------------------");
 		
-		//inspect fields
-		if(recursive) {
-			Field[] classFields = classObject.getDeclaredFields();
-			for(Field field : classFields) {
-				inspectedClasses.add(field.getType());
-				System.out.println(inspectedClasses);
-				inspectField(field);
-			}
-		}
+		
 		while (myObject.getClass().getSuperclass() != Object.class && !inspectedClasses.contains(classObject)){
 			inspectedClasses.add(classObject);
 			System.out.println(classObject);
@@ -55,29 +47,12 @@ public class Inspector {
 		}
 	}
 	
-	
-	
-	
-	public static void inspectField(Field myField) {
-		myField.setAccessible(true);
-		try {
-			inspectClass(myField.getClass());
-		}
-		catch(Exception e) {
-			
-		}
-		//print field values
-		
-		
-	}
-	
-	
 	public static void inspectClass(Class myClass) throws IllegalArgumentException, IllegalAccessException {
 		//inspectedClasses = new Vector();
 		Class classObject = myClass;
 	
 		String declaringClass = myClass.getSimpleName();
-		System.out.println("-------------------------------------------------------------------------------------");
+		System.out.println("\n-------------------------------------------------------------------------------------");
 		
 		System.out.println("The name of the declaring class is: " + declaringClass + "\n");
 		Class superClass = myClass.getSuperclass();
@@ -102,7 +77,7 @@ public class Inspector {
 		
 		
 		
-		System.out.println("-------------------------------------------------------------------------------------");
+		System.out.println("\n-------------------------------------------------------------------------------------");
 		if (myClass.getSuperclass() != Object.class && myClass.getSuperclass() != null){
 			inspectedClasses.add(myClass);
 			System.out.println(classObject);
@@ -224,9 +199,9 @@ public class Inspector {
 	public static Field[] inspectFields(Class classObject, Object obj) throws IllegalArgumentException, IllegalAccessException{
 		Field[] fields = classObject.getDeclaredFields();
 		int fieldCount = 0;
-		System.out.println("Declared fields: ");
 		
-		if (fields.length == 0) {
+		if (fields.length != 0) {
+			System.out.println("Declared fields: ");
 			for (Field field: fields) {
 				field.setAccessible(true);
 				String fieldName = field.getName();
@@ -243,7 +218,10 @@ public class Inspector {
 					System.out.println("Type: " + field.getType());
 				}
 				System.out.println("Modifier: " + Modifier.toString(field.getModifiers()));
-	
+				
+				if (recursive) {
+					inspectClass(field.getType());
+				}
 				fieldCount += 1;
 			}
 		}
@@ -255,7 +233,6 @@ public class Inspector {
 		
 	}
 
-	
 	
 	
 	
